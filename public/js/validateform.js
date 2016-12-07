@@ -41,7 +41,6 @@ function validateDescuento() {
 
 function validateCliente() {
 	codigo_postal = document.querySelector('[name="codigo_postal"]').value;;
-	limite_credito = document.querySelector('[name="limite_credito"]').value;;
 	if(!isInt(codigo_postal)){
 		alert("¡Ingrese un valor númerico en codigo postal!");
 		return false

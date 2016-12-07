@@ -5,15 +5,12 @@ namespace App\Http\Controllers;
 use Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests;
-use App\User;
 use App\Venta;
 use App\Venta_detalle;
-use App\Resumen;
 use App\Cliente;
 use App\Producto;
 use Laracasts\Flash\Flash;
 use Illuminate\Support\Facades\Input;
-use App\Inventario;
 use Auth;
 
 class VentasController extends Controller
@@ -25,8 +22,8 @@ class VentasController extends Controller
 
     public function create(){
         $fecha = date('Y-m-d');
-        $clientes = Cliente::where('activo', true)->orderBy('nombre')->lists('nombre', 'id');
-        $productos = Producto::all();
+        $clientes = Cliente::Where('activo', 1)->orderBy('nombre_comercial','id')->select('nombre_comercial', 'id')->get();
+        $productos = Producto::Where('activo', 1)->get();
     	return view('ventas.registro')->with('fecha_venta',$fecha)->with('clientes',$clientes)->with('productos',$productos);
     }
 

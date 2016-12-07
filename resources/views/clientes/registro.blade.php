@@ -17,8 +17,8 @@
 		</ol>
     {!! Form::open(['route' => 'clientes.store', 'method'=> 'POST']) !!}
 		<div class="form-group col-lg-6">
-			{!! Form::label('nombre','Nombre') !!}
-			{!! Form::text('nombre', null, ['class' => 'form-control', 'required', 'placeholder' => 'Nombre del cliente']) !!}
+			{!! Form::label('nombre_comercial','Nombre comercial') !!}
+			{!! Form::text('nombre_comercial', null, ['class' => 'form-control', 'required', 'placeholder' => 'Nombre comercial']) !!}
 		</div>
 		<div class="form-group col-lg-6">
 			{!! Form::label('rfc','Rfc') !!}
@@ -31,7 +31,7 @@
 		<div class="form-group col-lg-6">
 			{!! Form::label('email','Correo electronico') !!}
 		<div class="input-group">
-			{!! Form::email('correo_electronico', null, ['class' => 'form-control', 'required', 'placeholder' => 'Correo electronico']) !!}
+			{!! Form::email('email', null, ['class' => 'form-control', 'required', 'placeholder' => 'Correo electronico']) !!}
         <span class="input-group-addon" id="basic-addon2">@example.com</span>
 		</div>
 		</div>
@@ -63,15 +63,11 @@
 			{!! Form::label('pais','Pais') !!}
 			{!! Form::text('pais', null, ['class' => 'form-control', 'required', 'placeholder' => 'Pais']) !!}
 		</div>
-		
-		<div class="form-group col-lg-6">
-			{!! Form::label('limite_credito','Limite de credito $') !!}
-			{!! Form::number('limite_credito', null, ['class' => 'form-control', 'required', 'placeholder' => 'Limite de credito $', 'min' => '0.00', 'step' => 'any']) !!}
-		</div>
-	
+
 		<div class="form-group">
 			{!! Form::submit('Registrar', ['class' => 'btn btn-primary','onClick'=>'return validateCliente()']) !!}
 		</div>	
+
 	{!! Form::close() !!}
     </div>
 	@stop    

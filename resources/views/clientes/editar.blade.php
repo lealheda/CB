@@ -16,8 +16,8 @@
 
     {!! Form::open(['route' => ['clientes.update', $cliente], 'method'=> 'PUT']) !!}
 		<div class="form-group col-lg-6">
-			{!! Form::label('nombre','Nombre') !!}
-			{!! Form::text('nombre', $cliente->nombre, ['class' => 'form-control', 'required', 'placeholder' => '']) !!}
+			{!! Form::label('nombre_comercial','Nombre comercial') !!}
+			{!! Form::text('nombre_comercial', $cliente->nombre_comercial, ['class' => 'form-control', 'required', 'placeholder' => '']) !!}
 		</div>
 		<div class="form-group col-lg-6">
 			{!! Form::label('rfc','Rfc') !!}
@@ -28,9 +28,9 @@
 			{!! Form::text('telefono', $cliente->telefono, ['class' => 'form-control', 'required', 'placeholder' => '']) !!}
 		</div>
 		<div class="form-group col-lg-6">
-			{!! Form::label('email','Correo electronico') !!}
+			{!! Form::label('email','Email') !!}
 		<div class="input-group">
-			{!! Form::email('correo_electronico', $cliente->correo_electronico, ['class' => 'form-control', 'required', 'placeholder' => '']) !!}
+			{!! Form::email('email', $cliente->email, ['class' => 'form-control', 'required', 'placeholder' => '']) !!}
         <span class="input-group-addon" id="basic-addon2">@example.com</span>
 		</div>
 		</div>
@@ -63,11 +63,6 @@
 			{!! Form::text('pais', $cliente->pais, ['class' => 'form-control', 'required', 'placeholder' => '']) !!}
 		</div>
 		
-		<div class="form-group col-lg-6">
-			{!! Form::label('limite_credito','Limite de credito $') !!}
-			{!! Form::number('limite_credito', $cliente->limite_credito, ['class' => 'form-control', 'required', 'placeholder' => '', 'min' => '0.00', 'step' => 'any']) !!}
-		</div>
-	
 		<div class="form-group">
 			{!! Form::submit('Editar', ['class' => 'btn btn-primary','onClick'=>'return validateCliente()']) !!}
 		</div>	

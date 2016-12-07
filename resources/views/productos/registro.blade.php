@@ -1,7 +1,6 @@
 	@extends('layouts.app')
 	@section('title','Nuevo producto')
 	@section('content')
-
     <div class="container">
     @if (count($errors) > 0)
     <div class="alert alert-danger">
@@ -42,19 +41,11 @@
 		</div>
 		<div class="form-group col-lg-6">
 			{!! Form::label('categoria','Categoria') !!}
-			{!! Form::select('categoria', array('Filtro'=>'Filtro','Aceite'=>'Aceite'),'Filtro', ['class' => 'form-control', 'required']) !!}
+			{!! Form::select('categoria', array('Tecnologia'=>'Tecnologia','Otros'=>'Otros'),'Tecnologia', ['class' => 'form-control', 'required']) !!}
 		</div>
 		<div class="form-group col-lg-6">
 			{!! Form::label('unidades','Unidades') !!}
-			{!! Form::select('unidades', array('Litro'=>'Litro','Pieza'=>'Pieza','Caja'=>'Caja'),'Litro', ['class' => 'form-control', 'required']) !!}
-		</div>
-		<div class="form-group col-lg-6">
-			{!! Form::label('costo','Costo $') !!}
-			{!! Form::number('costo', 0, ['class' => 'form-control', 'required', 'placeholder' => 'Costo $', 'min' => '0.00', 'step' => 'any']) !!}
-		</div>
-		<div class="form-group col-lg-6">
-			{!! Form::label('minimo_inventario','Minimo en inventario') !!}
-			{!! Form::number('minimo_inventario', 0, ['class' => 'form-control', 'required', 'placeholder' => 'Minimo en inventario', 'min' => '0.00', 'step' => 'any']) !!}
+			{!! Form::select('unidades', array('Pieza'=>'Pieza','Litro'=>'Litro','Caja'=>'Caja'),'Pieza', ['class' => 'form-control', 'required']) !!}
 		</div>
 		<div class="form-group">
 			{!! Form::submit('Registrar', ['class' => 'btn btn-primary']) !!}

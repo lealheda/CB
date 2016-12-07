@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Requests;
 use App\Cliente;
 use App\User;
+use Laracasts\Flash\Flash;
 use Auth;
 
 class ClientesController extends Controller
@@ -27,61 +28,68 @@ class ClientesController extends Controller
 
     public function edit($id){
     	$cliente = Cliente::find($id);
-    	return view('layouts.clientes.editar')->with('cliente',$cliente);
+    	return view('clientes.editar')->with('cliente',$cliente);
     }
 
     public function update(Request $request, $id){
+        $rfc = Request::get('rfc');
+        if($this->validaRfc($rfc)==0){
+            $error="RFC No valido, Ejemplo: LEHD920117XXXX";
+            return view('clientes.editar')->with('cliente',$cliente)->withErrors($error);
+        }
     	$cliente = Cliente::find($id);
     	$rules = array(
-            'nombre'       => 'required',
+            'nombre_comercial'       => 'required',
             'rfc'       => 'required',
             'telefono'       => 'required',
-            'correo_electronico'      => 'required|email',
+            'email'      => 'required|email',
             'calle'      => 'required',
             'numero'      => 'required',
             'colonia'      => 'required',
             'codigo_postal'      => 'required|numeric|max:99999',
             'municipio'      => 'required',
             'estado'      => 'required',
-            'pais'      => 'required',
-            'limite_credito'      => 'required|numeric'
+            'pais'      => 'required'
         );
         $validator = Validator::make(Request::all(), $rules);
         if ($validator->fails()) {
-        	return view('layouts.clientes.editar')->with('cliente',$cliente)->withErrors($validator);
+        	return view('clientes.editar')->with('cliente',$cliente)->withErrors($validator);
         } else {
         	$datos = Request::all();
         	$cliente->update(Request::all());
-        	$user = Auth::user();
-        	$cliente->id_empleado_creo=$user->id_empleado;
 	    	$cliente->save();
-	    	Flash::success('Cliente ' . $cliente->nombre .' se ha actualizado con exito');
+	    	Flash::success('Cliente ' . $cliente->nombre_comercial .' se ha actualizado con exito');
 	    	return redirect()->route('clientes.index');
         }
     }
 
     public function store(Request $request){
+        $rfc = Request::get('rfc');
+        if($this->validaRfc($rfc)==0){
+            $error="RFC No valido, Ejemplo: LEHD920117XXXX";
+            return view('clientes.registro')->withErrors($error);
+        }
     	$rules = array(
-            'nombre'       => 'required',
+            'nombre_comercial'       => 'required',
             'rfc'       => 'required',
             'telefono'       => 'required',
-            'correo_electronico'      => 'required|email',
+            'email'      => 'required|email',
             'calle'      => 'required',
             'numero'      => 'required',
             'colonia'      => 'required',
             'codigo_postal'      => 'required|numeric|max:99999',
             'municipio'      => 'required',
             'estado'      => 'required',
-            'pais'      => 'required',
-            'limite_credito'      => 'required|numeric'
+            'pais'      => 'required'
         );
         $validator = Validator::make(Request::all(), $rules);
         if ($validator->fails()) {
-        	return view('layouts.clientes.registro')->withErrors($validator);
+        	return view('clientes.registro')->withErrors($validator);
         } else {
             $cliente = new cliente(Request::all());
             $cliente -> activo = 1;
             $cliente->save();
+            Flash::success('Cliente ' . $cliente->nombre_comercial .' se ha registrado con exito');
 	    	return redirect()->route('clientes.index');
         }
     }
@@ -89,11 +97,15 @@ class ClientesController extends Controller
     public function destroy($id){
     	$cliente = cliente::find($id);
     	$cliente->activo=0;
-        $user = Auth::user();
-        $cliente -> id_empleado_creo  = $user->id_empleado;
     	$cliente->save();
-    	Flash::error('¡Cliente ' . $cliente->nombre .' ha sido eliminado con exito!');
+    	Flash::error('¡Cliente ' . $cliente->nombre_comercial .' ha sido desactivado con exito!');
     	return redirect()->route('clientes.index');
     }
+
+    public function validaRfc($rfc){
+        $regex = '/^[A-Z]{4}([0-9]{2})(1[0-2]|0[1-9])([0-3][0-9])([ -]?)([A-Z0-9]{4})$/';
+        return preg_match($regex, $rfc);
+    }
+
 
 }

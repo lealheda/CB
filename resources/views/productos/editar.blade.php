@@ -42,19 +42,11 @@
 		</div>
 		<div class="form-group col-lg-6">
 			{!! Form::label('categoria','Categoria') !!}
-			{!! Form::select('categoria', array('Filtro'=>'Filtro','Aceite'=>'Aceite'),$producto->categoria, ['class' => 'form-control', 'required']) !!}
+			{!! Form::select('categoria', array('Tecnologia'=>'Tecnologia','Otros'=>'Otros'),'Tecnologia', ['class' => 'form-control', 'required']) !!}
 		</div>
 		<div class="form-group col-lg-6">
 			{!! Form::label('unidades','Unidades') !!}
-			{!! Form::select('unidades', array('Litro'=>'Litro','Pieza'=>'Pieza','Caja'=>'Caja'),$producto->unidades, ['class' => 'form-control', 'required']) !!}
-		</div>
-		<div class="form-group col-lg-6">
-			{!! Form::label('costo','Costo $') !!}
-			{!! Form::text('costo', $producto->costo, ['class' => 'form-control', 'required', 'min' => '0.00', 'step' => 'any']) !!}
-		</div>
-		<div class="form-group col-lg-6">
-			{!! Form::label('minimo_inventario','Minimo en inventario') !!}
-			{!! Form::number('minimo_inventario', $producto->minimo_inventario, ['class' => 'form-control', 'required', 'placeholder' => 'Minimo en inventario', 'min' => '0.00', 'step' => 'any']) !!}
+			{!! Form::select('unidades', array('Pieza'=>'Pieza','Litro'=>'Litro','Caja'=>'Caja'),'Pieza', ['class' => 'form-control', 'required']) !!}
 		</div>
 		<div class="form-group">
 			{!! Form::submit('Editar', ['class' => 'btn btn-primary']) !!}

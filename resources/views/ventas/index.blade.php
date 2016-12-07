@@ -2,6 +2,7 @@
 	@section('title','Lista de ventas')
 	@section('content')
 	<br>
+	@include('flash::message')
 	<div class="container">
     	<ol class="breadcrumb">
 			<li class="active"><h4>Ventas</h4></li>
@@ -13,9 +14,8 @@
                 <th>Id</th>
 				<th>Cliente</th>
 				<th>Fecha de venta</th>
-				<th>Facturada</th>
-				<th># factura</th>
 				<th>Total</th>
+				<th>Notas</th>
 				<th>Acciones</th>
             </tr>
         </thead>
@@ -24,9 +24,8 @@
              	<th>Id</th>
 				<th>Cliente</th>
 				<th>Fecha de venta</th>
-				<th>Facturada</th>
-				<th># factura</th>
 				<th>Total</th>
+				<th>Notas</th>
 				<th>Acciones</th>
             </tr>
         </tfoot>
@@ -36,15 +35,8 @@
 					<td> {{ $venta->id }} </td>
 					<td> {{ $venta->nombre_cliente }} </td>
 					<td> {{ $venta->created_at }} </td>
-					<td> 
-					@if($venta->facturada==false)
-							No facturada
-						@else
-							Facturada
-						@endif
-					</td>
-					<td> {{ $venta->numero_factura }} </td>
 					<td> {{ $venta->total }} </td>
+					<td> {{ $venta->notas }} </td>
 					<td>
 					<a href="{{ route('ventas.view', $venta->id)}}" class="btn btn-success"><span class="glyphicon glyphicon-search" aria-hidden="true" title="Visualizar"></span></a>
 					<a href="{{ route('ventas.pdf', $venta->id)}}" class="btn btn-primary"><span class="glyphicon glyphicon-save-file" aria-hidden="true" title="Pdf"></span></a>

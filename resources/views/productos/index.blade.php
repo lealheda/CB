@@ -1,7 +1,8 @@
-@extends('layouts.app')
+	@extends('layouts.app')
 	@section('title','Lista de productos')
 	@section('content')
 	<br>
+	@include('flash::message')
 	<div class="container">
     	<ol class="breadcrumb">
 			<li class="active"><h4>Productos</h4></li>
