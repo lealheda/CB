@@ -22,7 +22,7 @@ class VentasController extends Controller
 
     public function create(){
         $fecha = date('Y-m-d');
-        $clientes = Cliente::Where('activo', 1)->orderBy('nombre_comercial','id')->select('nombre_comercial', 'id')->get();
+        $clientes = Cliente::Where('activo', 1)->orderBy('nombre_comercial')->get();
         $productos = Producto::Where('activo', 1)->get();
     	return view('ventas.registro')->with('fecha_venta',$fecha)->with('clientes',$clientes)->with('productos',$productos);
     }
@@ -166,12 +166,19 @@ class VentasController extends Controller
         /* Encabezado de venta */
         $result = $request::all();
         $venta = new Venta($result);
-        $id_cliente = Cliente::where('nombre' , '=', $venta->id_cliente)->first();
-        $venta->id_cliente = $id_cliente->id;
-        $venta->facturada = false;
+        $venta->id_cliente = Input::get('comboboxcliente');
+        //dd($venta);
+        $codigos = Input::get('codigo');
+        $cantidad = Input::get('cantidad');
+        $i = 0;
+        $venta_detalle = new venta_detalle();
+        dd($venta_detalle);
+        foreach ($codigos as $codigo) {
+            dd($cantidad[$i]);
+            $i++;
+        }
+        dd($cantidad);
         $venta->activo = true;
-        $user = Auth::user();
-        $venta->id_empleado_creo = $user->id_empleado;
         $venta->total_productos = Input::get('final_cantidad');
         $venta->descuento_porcentaje = Input::get('final_porcentaje');
         $venta->descuento_pesos = Input::get('final_pesos');
