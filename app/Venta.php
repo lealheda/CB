@@ -8,7 +8,7 @@ class Venta extends Model
 {
     protected $table = "ventas";
 
-    protected $fillable = ['id','id_cliente','notas','total_productos','descuento_porcentaje','descuento_pesos','subtotal','iva','ieps','total','tipo_pago','activo','created_at'];
+    protected $fillable = ['id','cliente_id','notas','total_productos','descuento_porcentaje','descuento_pesos','subtotal','iva','ieps','total','activo','created_at'];
 
     public function cliente()
     {

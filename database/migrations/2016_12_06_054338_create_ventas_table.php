@@ -25,7 +25,6 @@ class CreateVentasTable extends Migration
             $table->double('iva',15,4);
             $table->double('ieps',15,4);
             $table->double('total',15,4);
-            $table->String('tipo_pago');
             $table->boolean('activo');
             $table->timestamps();
         });

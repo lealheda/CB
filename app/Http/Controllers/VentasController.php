@@ -27,28 +27,17 @@ class VentasController extends Controller
     	return view('ventas.registro')->with('fecha_venta',$fecha)->with('clientes',$clientes)->with('productos',$productos);
     }
 
-    private function create_error($error){
-        $fecha = date('Y-m-d');
-        $clientes = Cliente::where('activo', true)->orderBy('nombre')->lists('nombre', 'id');
-        $productos = Producto::all();
-        return view('layouts.ventas.registro')->with('fecha_venta',$fecha)->with('clientes',$clientes)->with('productos',$productos)->with('error',$error);
-    }
-
 	public function index(){
-		$ventas = venta::where('activo','=', 1)->get();
-        foreach ($ventas as $venta){
-            $cliente = Cliente::find($venta->id_cliente);
-            $venta->nombre_cliente = $cliente->nombre;
-        }
+		$ventas = Venta::where('activo','=', 1)->get();
     	return view('ventas.index')->with('ventas',$ventas);
     }    
 
     public function view($id){
-    	$venta = venta::find($id);
-        $cliente = cliente::find($venta->id_cliente);
-        $venta->nombre_cliente = $cliente->nombre;
-        $detalles = venta_detalle::where('id_venta', '=', $venta->id)->get();
-        $resumen = new Resumen();
+        $ventas = Venta::where('activo','=', 1)->get();
+        return view('ventas.index')->with('ventas',$ventas);
+        /*
+        $venta = Venta::find($id);
+        $detalles = venta_detalle::where('venta_id', '=', $venta->id)->get();
         foreach ($detalles as $detalle) {
             $producto = Producto::find($detalle->id_producto);
             $detalle->nombre_producto = $producto->nombre;
@@ -61,6 +50,7 @@ class VentasController extends Controller
             $resumen->total += $detalle->total;
         }        
     	return view('layouts.ventas.visualizar')->with('venta',$venta)->with('detalles',$detalles)->with('resumen',$resumen);
+        */
     }
 
      public function pdf($id){
@@ -88,165 +78,71 @@ class VentasController extends Controller
         //return $pdf->download($venta->id+'.pdf');
     }
 
-    /*Pendiente de realizar para facturar*/
-    public function update(Request $request, $id){
-        dd("En proceso de facturación");
-        $ldate = date('Y-m-d H:i:s');
-        $venta = venta::find($id);
-        if($venta->surtida==true){
-            Flash::error('¡ Su venta no puede ser surtida por que ya fue surtida !');
-            return redirect()->route('ventas.index');
-        }else{
-            $venta->surtida = true;
-            $venta->fecha_surtida = $ldate;
-            $user = Auth::user();
-            $venta->id_empleado_creo = $user->id_empleado;
-            $venta->save();
-            $detalles = venta_detalle::where('id_venta','=',$venta->id)->get();
-            foreach ($detalles as $detalle) {
-                $inventario = Inventario::where('id_producto','=',$detalle->id_producto)->first();
-                $inventario->cantidad += $detalle->cantidad;
-                $inventario->save();
-            }
-            Flash::success('¡ Su venta ha sido surtida con exito !');
-            return redirect()->route('ventas.index');
-        }
-    }
-
-    public function prestore(Request $request){
-        $result = $request::all();
-        //dd($result);
-        $id_productos = Input::get('id_producto');
-        $cantidad = Input::get('cantidad');
-        $descuento = Input::get('descuento');
-        $all_productos = Producto::findMany($id_productos);
-        $detalle = new venta_detalle();
-        $resumen = new Resumen();
-        $posicion = 0; 
-        $detalles = array();
-        $resumen_productos = array();
-        foreach ($all_productos as $producto){
-            if($cantidad[$posicion]>0){
-                $detalle = new venta_detalle();
-                $detalle->id_producto = $producto->id;
-                $inventario = Inventario::where('id_producto','=',$producto->id)->first();
-                if($cantidad[$posicion]>$inventario->cantidad){
-                    return $this->create_error("Error, solo cuenta en inventario la cantidad de ".$inventario->cantidad." del producto ".$producto->nombre);
-                }
-                else{
-                    $detalle->nombre_producto = $producto->nombre;
-                    $detalle->precio = $producto->precio;
-                    $detalle->cantidad = $cantidad[$posicion];
-                    $detalle->subtotal = round($producto->precio * $cantidad[$posicion],2); 
-                    $detalle->descuento_porcentaje = $descuento[$posicion];
-                    $detalle->descuento_pesos = round($detalle->subtotal * ($descuento[$posicion] / 100),2); 
-                    $detalle->iva = round($detalle->subtotal * ($producto->iva / 100),2);
-                    $detalle->ieps = round($detalle->subtotal * ($producto->ieps / 100),2);
-                    $detalle->total = round($detalle->subtotal - $detalle->descuento_pesos + $detalle->iva + $detalle->ieps,2);
-                    $resumen->cantidad += $detalle->cantidad;
-                    $resumen->descuento_porcentaje += $detalle->descuento_porcentaje;
-                    $resumen->descuento_pesos += $detalle->descuento_pesos;
-                    $resumen->subtotal += $detalle->subtotal;
-                    $resumen->iva += $detalle->iva;
-                    $resumen->ieps += $detalle->ieps;
-                    $resumen->total += $detalle->total;
-                    $detalles[] = $detalle;
-                }
-                $posicion++;
-                }
-        }
-        $datos_venta = new venta($result);
-        $fecha = date('Y-m-d H:i:s');
-        //dd($resumen);
-        $cliente = Cliente::find($datos_venta->id_cliente);
-        return view('layouts.ventas.resumen')->with('fecha_venta',$fecha)->with('datos_venta',$datos_venta)->with('cliente',$cliente)->with('detalles',$detalles)->with('resumen',$resumen);
-    }
-
-    public function store(Request $request){
+      public function store(Request $request){
         /* Encabezado de venta */
         $result = $request::all();
         $venta = new Venta($result);
-        $venta->id_cliente = Input::get('comboboxcliente');
-        //dd($venta);
+        $venta->cliente_id = Input::get('comboboxcliente');
         $codigos = Input::get('codigo');
         $cantidad = Input::get('cantidad');
-        $i = 0;
-        $venta_detalle = new venta_detalle();
-        dd($venta_detalle);
+        $precio = Input::get('precio');
+        $importe = Input::get('importe');
+        $descuento = Input::get('descuento');
+        $impuestos = Input::get('impuestos');
+        $totales = Input::get('totales');
+        $total_productos = 0; $total_descuento_porcentaje=0; $total_descuento_pesos=0;
+        $subtotal=0; $total_iva=0; $total_ieps=0; $total=0;
+        $posicion = 0;
         foreach ($codigos as $codigo) {
-            dd($cantidad[$i]);
-            $i++;
+            $producto = Producto::find($codigo);
+            $total_productos += $cantidad[$posicion];
+            $total_descuento_porcentaje += $descuento[$posicion];
+            $total_descuento_pesos += $importe[$posicion] * ($descuento[$posicion]/100);
+            $subtotal += $importe[$posicion];
+            $total_iva += $importe[$posicion] * ($producto->iva/100);
+            $total_ieps += $importe[$posicion] * ($producto->ieps/100);
+            $total += $totales[$posicion];
+            $posicion++;
         }
-        dd($cantidad);
+        $venta->total_productos = $total_productos;
+        $venta->descuento_pesos = $total_descuento_pesos;
+        $venta->descuento_porcentaje = $total_descuento_porcentaje;
+        $venta->subtotal = $subtotal;
+        $venta->iva = $total_iva;
+        $venta->ieps = $total_ieps;
+        $venta->total=$total;
         $venta->activo = true;
-        $venta->total_productos = Input::get('final_cantidad');
-        $venta->descuento_porcentaje = Input::get('final_porcentaje');
-        $venta->descuento_pesos = Input::get('final_pesos');
-        $venta->subtotal = Input::get('final_subtotal');
-        $venta->iva = Input::get('final_iva');
-        $venta->ieps = Input::get('final_ieps');
-        $venta->total = Input::get('final_total');
-        $venta->tipo_pago = "Contado";
         $venta->save();
         /* Fin encabezado de venta */ 
-        //dd($result);
-        /* Detalles */
-        $id_venta = $venta->id;
-        $id_productos = Input::get('id_producto');
-        $precio = Input::get('precio');
-        $cantidad = Input::get('cantidad');
-        $descuento_porcentaje = Input::get('descuento_porcentaje');
-        $descuento_pesos = Input::get('descuento_pesos');
-        $subtotal = Input::get('subtotal');
-        $iva = Input::get('iva');
-        $ieps = Input::get('ieps');
-        $total = Input::get('total');
+        
+        /* Detalles de la venta*/
         $posicion=0;
-        foreach ($id_productos as $producto) {
-            //dd($producto);
+        foreach ($codigos as $codigo) {
             $venta_detalle = new venta_detalle();
-            $venta_detalle->id_producto = $producto;
-            $venta_detalle->id_venta = $id_venta;
-            $venta_detalle->precio = $precio[$posicion];
+            $producto = Producto::find($codigo);
+            $venta_detalle->producto_id = $producto->id;
+            $venta_detalle->venta_id = $venta->id;
+            $venta_detalle->precio = $producto->precio;
             $venta_detalle->cantidad = $cantidad[$posicion];
-            $venta_detalle->descuento_porcentaje = $descuento_porcentaje[$posicion];
-            $venta_detalle->descuento_pesos = $descuento_pesos[$posicion];
-            $venta_detalle->subtotal = $subtotal[$posicion];
-            $venta_detalle->iva = $iva[$posicion];
-            $venta_detalle->ieps = $ieps[$posicion];
-            $venta_detalle->total = $total[$posicion];
+            $venta_detalle->descuento_porcentaje = $descuento[$posicion];
+            $venta_detalle->descuento_pesos = $importe[$posicion] * ($descuento[$posicion]/100);
+            $venta_detalle->subtotal = $importe[$posicion];
+            $venta_detalle->iva = $importe[$posicion] * ($producto->iva/100);
+            $venta_detalle->ieps = $importe[$posicion] * ($producto->ieps/100);
+            $venta_detalle->total = $totales[$posicion];
             $posicion++;
-            //dd($venta_detalle);
             $venta_detalle->save();
-            $inventario = Inventario::where('id_producto','=',$venta_detalle->id_producto)->first();
-            $inventario->cantidad-=$venta_detalle->cantidad;
-            $inventario->save();
         }
-	    	Flash::success(' Su venta al cliente ' . $id_cliente->nombre .' se ha registrado con exito !');
+            $cliente = Cliente::find($venta->cliente_id);
+	    	Flash::success(' Su venta al cliente ' . $cliente->nombre_comercial .' se ha registrado con exito !');
 	    	return redirect()->route('ventas.index');
     }
 
     public function destroy($id){
-        /*
-         * Falta cancelar notas facturadas.
-        */
     	$venta = venta::find($id);
-        if($venta->factura==true){
-            dd("En proceso de eliminar cuando estan facturadas");
-        }
-        else{
-            $detalles = Venta_detalle::where('id_venta','=',$id)->get();
-            foreach ($detalles as $detalle) {
-                $inventario = Inventario::Where('id_producto','=',$detalle->id_producto)->first();
-                $inventario->cantidad += $detalle->cantidad;
-                $inventario->save();
-            }
-            $venta->activo=0;
-            $user = Auth::user();
-            $venta -> id_empleado_creo  = $user->id_empleado;
-            $venta->save();
-            Flash::error('¡ Su venta ha sido eliminado con exito !');
+        $venta->activo=0;
+        $venta->save();
+        Flash::error('¡ Su venta ha sido eliminado con exito !');
             return redirect()->route('ventas.index');    
         }
-    }
 }
