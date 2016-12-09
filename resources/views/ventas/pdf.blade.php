@@ -1,17 +1,17 @@
-@extends('layouts.pdf.main')
+@extends('pdf.main')
 @section('content')
 <div class="container">
 <div id="details" class="clearfix">
         <div id="client">
           <div class="to">Cliente:</div>
-          <h2 class="name">{{$cliente->nombre}}</h2>
+          <h2 class="name">{{$venta->cliente->nombre_comercial}}</h2>
           <div class="to">RFC:</div>
-          <h2 class="name">{{$cliente->rfc}}</h2>
+          <h2 class="name">{{$venta->cliente->rfc}}</h2>
           <div class="to">Dirección</div>
-          <div class="address">{{$cliente->calle}} #{{$cliente->numero}} {{$cliente->colonia}} {{$cliente->codigo_postal}}</div>
-          <div class="address">{{$cliente->municipio}} {{$cliente->estado}} {{$cliente->pais}}</div>
+          <div class="address">{{$venta->cliente->calle}} #{{$venta->cliente->numero}} {{$venta->cliente->colonia}} {{$venta->cliente->codigo_postal}}</div>
+          <div class="address">{{$venta->cliente->municipio}} {{$venta->cliente->estado}} {{$venta->cliente->pais}}</div>
           <div class="to">Correo electrónico</div>
-          <div class="email"><a href="mailto:lealheda@gmail.com">{{$cliente->correo_electronico}}</a></div>
+          <div class="email"><a href="mailto:{{$venta->cliente->email}}">{{$venta->cliente->email}}</a></div>
         </div>
         <div id="invoice">
           <h1>Venta</h1>
@@ -31,10 +31,10 @@
           </tr>
         </thead>
         <tbody>
-        @foreach($detalles as $detalle)
+          @foreach($venta->venta_detalle as $detalle)
           <tr>
             <td class="no">{{$detalle->id}}</td>
-            <td class="desc"><h3>{{$detalle->nombre_producto}}</h3>{{$detalle->descripcion}}</td>
+            <td class="desc"><h3>{{$detalle->producto->nombre}}</h3>{{$detalle->producto->descripcion}}</td>
             <td class="unit">{{$detalle->precio}}</td>
             <td class="qty">{{$detalle->cantidad}}</td>
             <td class="qty">{{$detalle->descuento_pesos}}</td>
@@ -46,23 +46,28 @@
         <tfoot>
         <tr>
             <td colspan="3"></td>
+            <td colspan="3">Total de productos</td>
+            <td>${{$venta->total_productos}}</td>
+          </tr>
+        <tr>
+            <td colspan="3"></td>
             <td colspan="3">Descuentos</td>
-            <td>${{$resumen->descuento_pesos}}</td>
+            <td>${{$venta->descuento_pesos}}</td>
           </tr>
           <tr>
             <td colspan="3"></td>
             <td colspan="3">Subtotal</td>
-            <td>${{$resumen->subtotal}}</td>
+            <td>${{$venta->subtotal}}</td>
           </tr>
           <tr>
             <td colspan="3"></td>
             <td colspan="3">Impuestos</td>
-            <td>${{$resumen->iva + $resumen->ieps}}</td>
+            <td>${{$venta->iva + $venta->ieps}}</td>
           </tr>
           <tr>
             <td colspan="3"></td>
             <td colspan="3">Total</td>
-            <td>${{$resumen->total}}</td>
+            <td>${{$venta->total}}</td>
           </tr>
         </tfoot>
       </table>

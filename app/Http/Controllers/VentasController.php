@@ -10,6 +10,8 @@ use App\Venta_detalle;
 use App\Cliente;
 use App\Producto;
 use Laracasts\Flash\Flash;
+use Dompdf\Dompdf;
+use App;
 use Illuminate\Support\Facades\Input;
 use Auth;
 
@@ -33,48 +35,16 @@ class VentasController extends Controller
     }    
 
     public function view($id){
-        $ventas = Venta::where('activo','=', 1)->get();
-        return view('ventas.index')->with('ventas',$ventas);
-        /*
         $venta = Venta::find($id);
-        $detalles = venta_detalle::where('venta_id', '=', $venta->id)->get();
-        foreach ($detalles as $detalle) {
-            $producto = Producto::find($detalle->id_producto);
-            $detalle->nombre_producto = $producto->nombre;
-            $resumen->cantidad += $detalle->cantidad;
-            $resumen->descuento_porcentaje += $detalle->descuento_porcentaje;
-            $resumen->descuento_pesos += $detalle->descuento_pesos;
-            $resumen->subtotal += $detalle->subtotal;
-            $resumen->iva += $detalle->iva;
-            $resumen->ieps += $detalle->ieps;
-            $resumen->total += $detalle->total;
-        }        
-    	return view('layouts.ventas.visualizar')->with('venta',$venta)->with('detalles',$detalles)->with('resumen',$resumen);
-        */
+    	return view('ventas.view')->with('venta',$venta);
     }
 
      public function pdf($id){
         $venta = venta::find($id);
-        $cliente = cliente::find($venta->id_cliente);
-        $detalles = venta_detalle::where('id_venta', '=', $venta->id)->get();
-        $resumen = new Resumen();
-        foreach ($detalles as $detalle) {
-            $producto = Producto::find($detalle->id_producto);
-            $detalle->nombre_producto = $producto->nombre;
-            $detalle->descripcion = $producto->descripcion;
-            $resumen->cantidad += $detalle->cantidad;
-            $resumen->descuento_porcentaje += $detalle->descuento_porcentaje;
-            $resumen->descuento_pesos += $detalle->descuento_pesos;
-            $resumen->subtotal += $detalle->subtotal;
-            $resumen->iva += $detalle->iva;
-            $resumen->ieps += $detalle->ieps;
-            $resumen->total += $detalle->total;
-        }  
-        //dd($resumen);
-        $view = \View::make('layouts.ventas.pdf', compact('cliente','venta','detalles','resumen'))->render();
-        $pdf = \App::make('dompdf.wrapper');
+        $view = \View::make('ventas.pdf', compact('venta'))->render();
+        $pdf = App::make('dompdf.wrapper');
         $pdf->loadHTML($view);
-        return $pdf->stream($venta->id);
+        return $view->stream($venta->id);
         //return $pdf->download($venta->id+'.pdf');
     }
 
