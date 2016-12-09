@@ -47,7 +47,7 @@
         <tr>
             <td colspan="3"></td>
             <td colspan="3">Total de productos</td>
-            <td>${{$venta->total_productos}}</td>
+            <td>{{$venta->total_productos}}</td>
           </tr>
         <tr>
             <td colspan="3"></td>

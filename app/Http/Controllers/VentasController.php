@@ -41,11 +41,7 @@ class VentasController extends Controller
 
      public function pdf($id){
         $venta = venta::find($id);
-        $view = \View::make('ventas.pdf', compact('venta'))->render();
-        $pdf = App::make('dompdf.wrapper');
-        $pdf->loadHTML($view);
-        return $view->stream($venta->id);
-        //return $pdf->download($venta->id+'.pdf');
+        return view('ventas.pdf')->with('venta',$venta);
     }
 
       public function store(Request $request){
